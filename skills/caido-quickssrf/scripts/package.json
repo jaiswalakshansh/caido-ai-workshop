@@ -1,0 +1,20 @@
+{
+  "name": "caido-quickssrf-cli",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "CLI that uses the Caido client SDK and the QuickSSRF plugin spec to generate an SSRF URL",
+  "scripts": {
+    "ssrf": "tsx quickssrf.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@caido-community/quickssrf": "^1.0.3",
+    "@caido/sdk-client": "^0.5.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  }
+}

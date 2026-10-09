@@ -1,0 +1,15 @@
+# --- secrets: never commit these ---
+*.caido-token.json
+.caido-token.json
+secrets.json
+*.pat
+.env
+.env.*
+
+# --- dependencies / build ---
+node_modules/
+dist/
+*.log
+
+# --- os ---
+.DS_Store
