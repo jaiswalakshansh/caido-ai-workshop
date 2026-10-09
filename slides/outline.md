@@ -93,30 +93,30 @@ _Notes: De-sloppified skill building. Now it's reusable._
 ## 19. Part 4 — Impact: the bugs that pay
 _Notes: This is the part most AI-hacking talks skip._
 
-## 20. IDOR / BOLA matrix (demo 06) 🔴
-- Swap {A, B, none} across every object-id endpoint
-- `caido_batch_send` → diff → verdict table → findings
-_Notes: OWASP API #1. Death by tedium manually; seconds here._
+## 20. AuthMatrix authz testing (demo 06) 🔴
+- Plugin replays every request as every user (deterministic grid)
+- AI reads bodies → real leak vs legit (BOLA/BFLA)
+_Notes: OWASP API #1. Plugin does replay; AI makes the semantic call._
 
-## 21. Blind SSRF at scale (demo 07) 🔴
-- One OAST canary into every URL-ish param
-- Watch callbacks (DNS/HTTP + headers)
-_Notes: We weaponize the skill we just built._
+## 21. ParamFinder hidden params (demo 07) 🔴
+- Plugin brute-forces hidden query/body/header params
+- AI triages: ?url→SSRF, ?file→LFI, ?debug→leak, header→cache poison; weaponizes
+_Notes: Discovery + instant impact testing with the QuickSSRF canary._
 
-## 22. Race conditions (demo 08) 🟠
-- `caido_race_window_send`: synchronized last-byte copies
-- Single-use limit bypass (coupon/withdraw/invite)
-_Notes: LLM can't time races — the proxy does it deterministically._
+## 22. Archive / Wayback recon (demo 08) 🟠
+- gau/waybackurls/katana → thousands of historical URLs
+- AI triages → still-live, still-sensitive forgotten endpoints
+_Notes: The archive remembers what they meant to delete._
 
-## 23. Mass assignment + hidden authz (demo 09) 🔴
-- Send role=admin / isAdmin=true the UI never sends
-- Probe admin/debug endpoints unauth'd
-_Notes: Straight out of the JS recon. Privilege escalation._
+## 23. gRPC-web / protobuf decode & tamper (demo 09) 🔴
+- Opaque binary RPC on a live target — most skip it
+- AI reads the app's JS → decode → tamper → re-encode → test
+_Notes: The genuinely hard one. Can't fuzz what you can't read. Hack-Google technique._
 
-## 24. GraphQL / gRPC recon (demo 10)
-- Reverse `batchexecute?rpcids=...` from the app's own JS
-- Then bake it into a deterministic Caido plugin
-_Notes: The "hack Google" trick. Explore with AI, harden into a tool._
+## 24. GraphQL assault (demo 10) 🔴
+- GraphQL-Analyzer maps the schema
+- AI finds dangerous mutations + IDOR queries; tests authz & batching bypass
+_Notes: One endpoint, thousand-type schema; plugin draws the map, AI finds the bugs._
 
 ## 25. The philosophy
 - Explore fast with AI → crystallize the repeatable part into deterministic tooling

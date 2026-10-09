@@ -390,45 +390,45 @@ function impactSlide(demo, title, sev, sevColor, bullets, prompt) {
   return s;
 }
 
-// 20. IDOR
-impactSlide("Demo 06", "IDOR / BOLA matrix", "CRITICAL", DAN,
-  ["Swap {victim A, attacker B, no-auth} across every object-id endpoint",
-   "caido_batch_send fires the whole matrix in parallel, then diffs responses",
-   "Flag any endpoint where B or no-auth returns A's data → OWASP API #1"],
-  "\"…build 3 variants swapping only credentials, send with caido_batch_send, diff vs A, show the verdict table first.\"")
-  .addNotes("Death by tedium manually; seconds here. The demo that earns its keep.");
+// 20. AuthMatrix authz
+impactSlide("Demo 06 · AuthMatrix", "Authorization testing (BOLA / BFLA)", "CRITICAL", DAN,
+  ["Plugin replays every request as every user — deterministic grid",
+   "AI reads the response bodies and judges real leak vs. legit (the hard part)",
+   "OWASP API #1 — what no scanner can decide on its own"],
+  "\"For each cell where a lower-priv identity got another user's data, compare bodies and decide if it's a real break. Table first.\"")
+  .addNotes("Plugin does the deterministic replay; AI makes the semantic call. The division of labor is the whole philosophy.");
 
-// 21. SSRF
-impactSlide("Demo 07", "Blind SSRF at scale", "CRITICAL", DAN,
-   ["Weaponize the skill from demo 05: one OAST canary URL",
-    "Inject it into every url/redirect/webhook/image parameter across traffic",
-    "Watch callbacks (DNS/HTTP + headers) — a hit you'd never see in a response"],
-   "\"Our canary is <oast-url>. Inject into every URL-ish param and send through Caido; tell me which request each came from.\"")
-  .addNotes("We weaponize the skill we just built.");
+// 21. ParamFinder
+impactSlide("Demo 07 · ParamFinder", "Hidden parameter & header mining", "CRITICAL", DAN,
+   ["Plugin brute-forces hidden query/body/header params",
+    "AI triages each: ?url→SSRF, ?file→LFI, ?debug→leak, header→cache poison",
+    "then weaponizes with caido_batch_send + the QuickSSRF canary"],
+   "\"Read the ParamFinder findings, classify each param's likely bug, and TEST it. Show which actually changed behavior, ranked by severity.\"")
+  .addNotes("Discovery plus instant impact testing. Finding ?url is nothing until the SSRF watcher lights up.");
 
-// 22. race
-impactSlide("Demo 08", "Race conditions / limit bypass", "HIGH", ACC,
-   ["caido_race_window_send: synchronized last-byte copies (single-packet technique)",
-    "Bypass single-use limits: coupon reuse, double-spend, over-withdraw, invite stuffing",
-    "The LLM can't time races — the proxy does it deterministically"],
-   "\"Send 20 synchronized last-byte copies of request <ID>; report whether the one-time limit was bypassed.\"")
-  .addNotes("Proven tool + smart driver. Only on test accounts you own.");
+// 22. Archive / Wayback
+impactSlide("Demo 08 · Wayback", "Archive recon → forgotten endpoints", "HIGH", ACC,
+   ["gau / waybackurls / katana pull thousands of historical URLs",
+    "AI triages: old API versions, debug, backups, retired auth",
+    "caido_batch_send probes the shortlist — still-live, still-sensitive"],
+   "\"Rank these 5,000 archived URLs by bug potential, give me the top 50 to probe in scope, then GET them and flag what's live and sensitive.\"")
+  .addNotes("The archive remembers the URLs they meant to delete. Triage at scale is the AI's job.");
 
-// 23. mass assignment
-impactSlide("Demo 09", "Mass assignment & hidden authz", "CRITICAL", DAN,
-   ["Send fields the UI never shows: role=admin, isAdmin=true, verified=true",
-    "Probe discovered + inferred admin/debug endpoints with normal and no token",
-    "Flows straight out of the demo-04 JS recon (the role field)"],
-   "\"Add privilege fields the UI never sends; report which the server accepts. Then probe admin/debug endpoints unauth'd.\"")
-  .addNotes("Reading the client is the highest-leverage recon — privilege escalation.");
+// 23. gRPC / protobuf — the hard one
+impactSlide("Demo 09 · gRPC-web", "Decode & tamper protobuf on a live target", "CRITICAL", DAN,
+   ["gRPC-web / protobuf / batchexecute bodies are opaque binary — most skip them",
+    "AI reads the app's own JS to recover the message schema",
+    "Decode → tamper a field → re-encode → test IDOR/authz in Replay"],
+   "\"Reconstruct the message schema for this RPC from the JS in history, show the decoded body, then re-encode with user_id changed — don't send.\"")
+  .addNotes("The genuinely hard one. You can't fuzz what you can't read; the AI reads the JS. This is the hack-Google technique.");
 
-// 24. graphql/grpc
-impactSlide("Demo 10", "GraphQL / gRPC recon", "SURFACE", GRN,
-   ["Reverse opaque batchexecute?rpcids=… from the app's own JS in Caido",
-    "Reconstruct GraphQL schema when introspection is disabled",
-    "Then bake the repeatable part into a deterministic Caido plugin"],
-   "\"Reverse the rpcids request from the JS in caido history; draft a markdown report. Then build a plugin to map rpcids → RPC name.\"")
-  .addNotes("The hack-Google trick. Explore with AI, harden into a tool.");
+// 24. GraphQL-Analyzer
+impactSlide("Demo 10 · GraphQL-Analyzer", "GraphQL assault", "CRITICAL", DAN,
+   ["Plugin maps the schema (introspection or inferred)",
+    "AI picks the dangerous mutations + IDOR-shaped queries from hundreds of types",
+    "Tests authz, node(id:) IDOR, and alias/batch rate-limit bypass"],
+   "\"List state-changing + cross-user mutations and IDOR-candidate queries, then craft GraphQL to prove IDOR and aliased-batch rate-limit bypass.\"")
+  .addNotes("One endpoint, a thousand-type schema. Plugin draws the map; AI finds the dangerous operations.");
 
 // ============ 25. philosophy ============
 (() => {
@@ -448,11 +448,12 @@ impactSlide("Demo 10", "GraphQL / gRPC recon", "SURFACE", GRN,
   const res = [
     "github.com/jaiswalakshansh/caido-ai-workshop  (this repo)",
     "github.com/caido/skills  ·  github.com/c0tton-fluff/caido-mcp-server",
-    "github.com/caido-community/quickssrf  ·  github.com/vitorfhc/caido-rpc-mapper",
-    "labs.trace37.com/blog/caido-ai-hunting-platform",
+    "Plugins: caido-community/ — authmatrix · ParamFinder · GraphQL-Analyzer",
+    "          JS-Analyzer · quickssrf · crawler · scanner · JWT-Analyzer",
+    "github.com/vitorfhc/caido-rpc-mapper  ·  labs.trace37.com/blog/caido-ai-hunting-platform",
   ];
-  s.addText(res.map(r => ({ text: r, options: { bullet: { indent: 15 }, color: LTX, fontSize: 17, fontFace: MONO, breakLine: true, paraSpaceAfter: 14 } })),
-    tb({ x: MX, y: 2.3, w: 11.8, h: 3.5 }));
+  s.addText(res.map(r => ({ text: r, options: { bullet: { indent: 15 }, color: LTX, fontSize: 15, fontFace: MONO, breakLine: true, paraSpaceAfter: 12 } })),
+    tb({ x: MX, y: 2.3, w: 11.8, h: 3.8 }));
   s.addNotes("All linked from the repo README.");
 })();
 

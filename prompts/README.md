@@ -26,32 +26,44 @@ Check if there is a secret value in the caido history (API keys, JWTs, session t
 Find JWTs in history. Decode them, flag weak/none alg, long expiry, sensitive claims, and whether the signature is verified server-side (try tampering a claim in Replay — don't send).
 ```
 
-## IDOR / BOLA (demo 06)
+## Authorization / AuthMatrix (demo 06)
 ```
-In caido history, request <A_ID> is authenticated as victim A and <B_ID> as attacker B. For every in-scope endpoint referencing an object id, build 3 variants that swap ONLY credentials: A (baseline), B, and none. Send with caido_batch_send and diff against A. Flag any where B or none returns A's data or an unexpected 2xx. Show a table first.
+List every in-scope request that references an object or privileged action (ids in path/query/body, /admin, /billing, /users, /export). Output (method, path, which identity captured it) — these are the AuthMatrix rows.
 ```
-
-## Blind SSRF (demo 07)
 ```
-Our OAST canary is <URL>. Find every in-scope request with a URL-ish parameter (url, uri, redirect, next, callback, webhook, image, src, file, host, domain...). Replace that value with the canary and send through Caido with caido_batch_send. Tell me which request/param each injection came from.
+Here is the AuthMatrix result grid. For each cell where a lower-priv or unauth identity got 2xx or another user's data, compare the body to the owner's and decide if it's a real authorization break. Table: endpoint | expected | actual-by-identity | verdict | evidence. Only flag real breaks.
 ```
 
-## Race conditions (demo 08)
+## Hidden params / ParamFinder (demo 07)
 ```
-Request <ID> performs a single-use action. Use caido_race_window_send to send 20 synchronized last-byte copies. Report whether the limit was bypassed, from responses and post-state. Change nothing else.
+From caido history, pick the 10 best requests to test for hidden parameters (resource fetch, template render, export, redirect, internal/admin). For each say QUERY, BODY, or HEADERS mode and why.
 ```
-
-## Mass assignment / authz (demo 09)
 ```
-Take request <ID>. Add privilege fields the UI never sends (role=admin, isAdmin=true, verified=true, balance=...). Send each variant and report which the server accepts. Then probe discovered + inferred admin/debug endpoints with a normal token and with no token; table of what's reachable.
+Read the ParamFinder findings. For each discovered param, classify the likely bug (url/redirect->SSRF/open-redirect, file/template->LFI/SSTI, debug/admin->info/priv, callback->XSS, unkeyed header->cache poisoning) and TEST it with caido_batch_send (use the QuickSSRF canary for SSRF). Show which params actually changed behavior, ranked by severity.
 ```
 
-## GraphQL / gRPC (demo 10)
+## Archive / Wayback recon (demo 08)
 ```
-Find the GraphQL endpoint; try introspection, else reconstruct the schema from captured JS. List state-changing mutations and ones touching other users' objects.
+Here is urls.txt (historical/crawled URLs for <target>). Cluster and rank by bug potential: old API versions, *.json/*.xml data endpoints, admin/internal/debug/swagger/graphql, backup artifacts (.bak .old .zip .sql .env .git), auth/token/reset endpoints, interesting params. Give me the top 50 to probe, grouped by hypothesis. Skip static assets, filter to scope.
 ```
 ```
-Check the request with rpcids=<ID>. Reverse what it does, its params and response, from the JS in caido history. Draft a markdown report.
+GET the top-50 (in scope) with caido_batch_send. Report which return 2xx or sensitive content, which old endpoints still work, which lack auth. Pull full responses for the sensitive live ones and assess impact.
+```
+
+## gRPC-web / protobuf (demo 09)
+```
+Request <ID> is gRPC-web/protobuf (or batchexecute rpcids=XXXX) on a live target. Read the app's JS in caido history and reconstruct the message schema: RPC/method name, each field number/type/meaning, request and response. Show the decoded request body.
+```
+```
+Change <field>. Produce the correctly protobuf/grpc-web-encoded body, create a Caido replay session with it, but DON'T send. Show exact bytes/framing if base64/grpc-web framing is involved.
+```
+
+## GraphQL assault / GraphQL-Analyzer (demo 10)
+```
+Here is the GraphQL schema. List: (1) state-changing or cross-user mutations, (2) IDOR-candidate queries taking an id (node(id:), user(id:), order(id:)), (3) sensitive fields. Rank by blast radius.
+```
+```
+For the top IDOR-candidate queries, craft GraphQL to fetch another user's object by id and run with a low-priv token AND no token via caido_batch_send; flag any that return data they shouldn't. Then build one aliased/batched request calling a sensitive op many times and tell me if rate limiting/OTP throttling is bypassed.
 ```
 
 ## Reporting
