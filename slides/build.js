@@ -64,8 +64,17 @@ function chip(slide, n, x, y, color) {
              { text: " target.com", options: { color: MUT } }],
     tb({ x: MX + 0.25, y: 4.5, w: 8.2, h: 0.7, valign: "middle", fontFace: MONO, fontSize: 18 }));
   s.addText("Claude Code  ·  MCP & Skills  ·  real critical/high bugs",
-    tb({ x: MX, y: 6.6, w: 11, h: 0.4, color: MUT, fontFace: BFONT, fontSize: 13 }));
-  s.addNotes("Hook: everyone's letting AI fire blind curl at targets. Let's make it observable, safe, and actually good at finding bugs.");
+    tb({ x: MX, y: 6.6, w: 8, h: 0.4, color: MUT, fontFace: BFONT, fontSize: 13 }));
+  // QR to the repo (white panel for scan contrast)
+  const qx = 10.25, qy = 2.1, qs = 2.25;
+  s.addShape(p.ShapeType.roundRect, { x: qx - 0.18, y: qy - 0.18, w: qs + 0.36, h: qs + 0.36,
+    rectRadius: 0.08, fill: { color: "FFFFFF" }, line: { type: "none" } });
+  s.addImage({ path: "assets-qr.png", x: qx, y: qy, w: qs, h: qs });
+  s.addText("Scan → the workshop repo", tb({ x: qx - 0.4, y: qy + qs + 0.28, w: qs + 1.1, h: 0.35,
+    align: "center", color: TX, fontFace: BFONT, fontSize: 12, bold: true }));
+  s.addText("github.com/jaiswalakshansh/caido-ai-workshop", tb({ x: qx - 0.6, y: qy + qs + 0.6, w: qs + 1.5, h: 0.35,
+    align: "center", color: MUT, fontFace: MONO, fontSize: 9 }));
+  s.addNotes("Hook: everyone's letting AI fire blind curl at targets. Let's make it observable, safe, and actually good at finding bugs. Point out the QR for the repo.");
 })();
 
 // ============ section divider factory ============
