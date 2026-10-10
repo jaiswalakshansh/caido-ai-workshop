@@ -11,6 +11,9 @@ then a set of demos that go from "hello world" to **finding real critical/high-s
 > Based on the DEF CON talk *"Your AI Needs a Proxy"* by Emile Fugulin (Caido) & Vitor (trace37),
 > extended with higher-impact, bug-bounty-oriented demos and a clean, reproducible setup.
 
+📊 **Slides:** https://docs.google.com/presentation/d/1BjR6hC10EhmeMVFVvOpwWcWqim-cC5Rjxn375bEDvSo/edit
+(editable deck also in [`slides/your-ai-needs-a-proxy.pptx`](slides/your-ai-needs-a-proxy.pptx))
+
 ---
 
 ## What you'll be able to do
@@ -35,7 +38,7 @@ skills/    the caido-quickssrf skill (SDK + PAT, improved)
 prompts/   copy-paste prompt library for each attack class
 scripts/   bootstrap + session-trace helpers
 sample-targets/  labcommerce.min.js (the JS-recon sample)
-slides/    the deck (your-ai-needs-a-proxy.pptx) + outline
+slides/    the deck (your-ai-needs-a-proxy.pptx) + outline  (Google Slides: see link above)
 ```
 
 ---
